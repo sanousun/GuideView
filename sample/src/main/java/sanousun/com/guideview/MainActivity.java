@@ -4,14 +4,17 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import sanousun.com.guide_view.Configuration;
 import sanousun.com.guide_view.Guide;
+import sanousun.com.guide_view.GuideView;
 import sanousun.com.guide_view.SizeUtils;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements GuideView.OnOutOfRangeListener {
 
+    private ScrollView scrollView;
     private Guide mGuide;
     private TextView hello;
     private TextView world;
@@ -22,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        scrollView = findViewById(R.id.scrollView);
         hello = findViewById(R.id.hello);
         world = findViewById(R.id.world);
         me = findViewById(R.id.me);
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
                 .setGuideView(R.layout.view_guide)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
+                .setOnOutOfRangeListener(this)
                 .show();
     }
 
@@ -68,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 .setGuideView(R.layout.view_guide)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
+                .setOnOutOfRangeListener(this)
                 .show();
     }
 
@@ -78,10 +84,11 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetRadio(0.5f)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_BOTTOM)
+                .setGuideAnchorType(Configuration.ANCHOR_TOP)
                 .setGuideView(R.layout.view_guide)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
+                .setOnOutOfRangeListener(this)
                 .show();
     }
 
@@ -92,10 +99,17 @@ public class MainActivity extends AppCompatActivity {
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setTargetCorner(SizeUtils.dp2px(this, 2f))
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_BOTTOM)
+                .setGuideAnchorType(Configuration.ANCHOR_TOP)
                 .setGuideView(R.layout.view_guide)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
+                .setOnOutOfRangeListener(this)
                 .show();
+    }
+
+    @Override
+    public void onOutOfRange(GuideView guideView, int offsetX, int offsetY) {
+        scrollView.scrollBy(offsetX, offsetY);
+        guideView.fixLayout();
     }
 }

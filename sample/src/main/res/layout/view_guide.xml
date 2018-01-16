@@ -38,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="这是引导view这是引导view这是引导view这是引导view这是引导view这是引导view这是引导view这是引导view"
+            android:text="这是引导view"
             android:textColor="@color/white"
             android:textSize="20dp"
             android:textStyle="bold"/>

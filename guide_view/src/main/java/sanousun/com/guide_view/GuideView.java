@@ -18,6 +18,8 @@ import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -54,6 +56,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     private int mAnimatorShow;
     private int mAnimatorDismiss;
     private List<OnDismissListener> mOnDismissListeners;
+    private OnOutOfRangeListener mOnOutOfRangeListener;
 
     private Paint mEraser;
     private Bitmap mEraserBitmap;
@@ -132,6 +135,10 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         if (mOnDismissListeners != null) {
             mOnDismissListeners.clear();
         }
+    }
+
+    public void setOnOutOfRangeListener(OnOutOfRangeListener onOutOfRangeListener) {
+        mOnOutOfRangeListener = onOutOfRangeListener;
     }
 
     public GuideView(Context context) {
@@ -266,12 +273,12 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         if (mTargetView.getWidth() == 0 && mTargetView.getHeight() == 0) {
             getViewTreeObserver().addOnGlobalLayoutListener(this);
         } else {
             fixLayout();
         }
+        ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         parent.addView(GuideView.this);
         if (mAnimatorShow > 0) {
             Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorShow);
@@ -324,7 +331,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         getViewTreeObserver().removeOnGlobalLayoutListener(this);
     }
 
-    private void fixLayout() {
+    public void fixLayout() {
         //将该布局提到最前面
         bringToFront();
         int[] location = new int[2];
@@ -352,7 +359,36 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         } else {
             mTargetRect.set(left, top, right, bottom);
         }
-        requestLayout();
+
+        Log.i("target", "left: " + mTargetRect.left +
+                ", top: " + mTargetRect.top +
+                ", right: " + mTargetRect.right +
+                ", bottom: " + mTargetRect.bottom);
+
+        // 部分可见或者不可见的处理
+        DisplayMetrics metrics = getContext().getResources().getDisplayMetrics();
+        Rect deviceRect = new Rect(0, 0, metrics.widthPixels, metrics.heightPixels);
+
+        int oLeft = mTargetRect.left - deviceRect.left;
+        int oTop = mTargetRect.top - deviceRect.top;
+        int oRight = mTargetRect.right - deviceRect.right;
+        int oBottom = mTargetRect.bottom - deviceRect.bottom;
+        // 正常应该是一正一负，考虑到目标是大于窗口的请况可能会-负-零或者一零一零
+        // 不正常的情况则是两正或者两负
+        if (oLeft * oRight <= 0 && oTop * oBottom <= 0 || mOnOutOfRangeListener == null) {
+            requestLayout();
+        } else {
+            int offX, offY;
+            offX = Math.min(Math.abs(oLeft), Math.abs(oRight));
+            if (oLeft < 0) {
+                offX = -offX;
+            }
+            offY = Math.min(Math.abs(oTop), Math.abs(oBottom));
+            if (oTop < 0) {
+                offY = -offY;
+            }
+            mOnOutOfRangeListener.onOutOfRange(this, offX, offY);
+        }
     }
 
     public interface OnDismissListener {
@@ -360,5 +396,12 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
          * 蒙层消失时的回调
          */
         public void onDismiss();
+    }
+
+    public interface OnOutOfRangeListener {
+        /**
+         * 目标超出可视界面
+         */
+        public void onOutOfRange(GuideView guideView, int offsetX, int offsetY);
     }
 }

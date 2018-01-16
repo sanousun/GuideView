@@ -235,6 +235,17 @@ public class GuideBuilder {
     }
 
     /**
+     * 目标超出屏幕的回调监听
+     *
+     * @param onOutOfRangeListener 目标超出屏幕的回调监听
+     * @return this
+     */
+    public GuideBuilder setOnOutOfRangeListener(GuideView.OnOutOfRangeListener onOutOfRangeListener) {
+        mConfiguration.mOnOutOfRangeListener = onOutOfRangeListener;
+        return this;
+    }
+
+    /**
      * 创建引导视图
      */
     private GuideView create() {
@@ -263,6 +274,7 @@ public class GuideBuilder {
                 guideView.addOnDismissListener(onDismissListener);
             }
         }
+        guideView.setOnOutOfRangeListener(mConfiguration.mOnOutOfRangeListener);
         return guideView;
     }
 

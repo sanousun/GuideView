@@ -164,7 +164,6 @@ public class Configuration {
      */
     @Px
     public int mGuideOffsetY;
-
     /**
      * 展示动画
      */
@@ -179,4 +178,8 @@ public class Configuration {
      * 蒙层消失的监听事件
      */
     public List<GuideView.OnDismissListener> mOnDismissListeners;
+    /**
+     * 目标view超出屏幕监听
+     */
+    public GuideView.OnOutOfRangeListener mOnOutOfRangeListener;
 }
