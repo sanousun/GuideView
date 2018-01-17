@@ -62,6 +62,8 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     private Bitmap mEraserBitmap;
     private Canvas mEraserCanvas;
 
+    private boolean isAnimatorDoing = false;
+
     public void setTargetView(View targetView) {
         mTargetView = targetView;
     }
@@ -281,25 +283,37 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         parent.addView(GuideView.this);
         if (mAnimatorShow > 0) {
+            isAnimatorDoing = true;
             Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorShow);
             animator.setTarget(GuideView.this);
             animator.start();
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    isAnimatorDoing = false;
+                }
+            });
         }
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isAnimatorDoing) {
+                    return;
+                }
                 if (mAnimatorDismiss > 0) {
+                    isAnimatorDoing = true;
                     Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
                     animator.setTarget(GuideView.this);
                     animator.start();
-                    animator.addListener(
-                            new AnimatorListenerAdapter() {
-                                @Override
-                                public void onAnimationEnd(Animator animation) {
-                                    super.onAnimationEnd(animation);
-                                    dismiss();
-                                }
-                            }
+                    animator.addListener(new AnimatorListenerAdapter() {
+                                             @Override
+                                             public void onAnimationEnd(Animator animation) {
+                                                 super.onAnimationEnd(animation);
+                                                 isAnimatorDoing = false;
+                                                 dismiss();
+                                             }
+                                         }
                     );
                 } else {
                     dismiss();
