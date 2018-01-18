@@ -40,7 +40,7 @@ public class Configuration {
     /**
      * 目标高亮view
      */
-    public View mTargetView;
+    public List<View> mTargetViewList;
     /**
      * 目标高亮形状
      */

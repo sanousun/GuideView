@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     private void showHelloGuide() {
         mGuide.createGuide()
                 .setTargetView(hello)
+                .addTargetView(world)
                 .setTargetShape(Configuration.SHAPE_OVAL)
                 .setTargetRadio(0.5f)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     private void showWorldGuide() {
         mGuide.createGuide()
                 .setTargetView(world)
+                .addTargetView(me)
                 .setTargetShape(Configuration.SHAPE_RECTANGLE)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setTargetCorner(SizeUtils.dp2px(this, 2f))

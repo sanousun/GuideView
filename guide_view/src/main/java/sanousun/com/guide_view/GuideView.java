@@ -38,7 +38,7 @@ import java.util.List;
 
 public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLayoutListener {
 
-    private View mTargetView;
+    private List<View> mTargetViewList;
     private Rect mTargetRect;
     private RectF mTargetShowRectF;
     private int mTargetPaddingLeft;
@@ -64,8 +64,12 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
 
     private boolean isAnimatorDoing = false;
 
-    public void setTargetView(View targetView) {
-        mTargetView = targetView;
+    public void setTargetViewList(List<View> targetViewList) {
+        if (mTargetViewList == null) {
+            mTargetViewList = new ArrayList<>();
+        }
+        mTargetViewList.clear();
+        mTargetViewList.addAll(targetViewList);
     }
 
     public void setTargetPaddingLeft(int targetPaddingLeft) {
@@ -275,7 +279,12 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        if (mTargetView.getWidth() == 0 && mTargetView.getHeight() == 0) {
+        if (mTargetViewList == null || mTargetViewList.size() == 0) {
+            // TODO: 2018/1/18 如果没有传入targetView的处理、
+            return;
+        }
+        View target = mTargetViewList.get(0);
+        if (target.getWidth() == 0 && target.getHeight() == 0) {
             getViewTreeObserver().addOnGlobalLayoutListener(this);
         } else {
             fixLayout();
@@ -346,32 +355,25 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     }
 
     public void fixLayout() {
-        //将该布局提到最前面
+        // 将该布局提到最前面
         bringToFront();
-        int[] location = new int[2];
-        mTargetView.getLocationInWindow(location);
-        int targetWidth = mTargetView.getWidth();
-        int targetHeight = mTargetView.getHeight();
-        int left = location[0] - mTargetPaddingLeft;
-        int top = location[1] - mTargetPaddingTop;
-        int right = location[0] + targetWidth + mTargetPaddingRight;
-        int bottom = location[1] + targetHeight + mTargetPaddingBottom;
+        Rect border = calculateTargetBorder();
         if (mTargetShape == Configuration.SHAPE_OVAL) {
-            int centerX = (right + left) / 2;
-            int centerY = (top + bottom) / 2;
+            int centerX = (border.right + border.left) / 2;
+            int centerY = (border.top + border.bottom) / 2;
             int radioX, radioY;
-            if ((right - left) > (bottom - top)) {
-                radioX = (right - left) / 2;
+            if ((border.right - border.left) > (border.bottom - border.top)) {
+                radioX = (border.right - border.left) / 2;
                 radioY = (int) (radioX * mTargetRadio);
             } else {
-                radioY = (bottom - top) / 2;
+                radioY = (border.bottom - border.top) / 2;
                 radioX = (int) (radioY * mTargetRadio);
             }
             mTargetRect.set(
                     centerX - radioX, centerY - radioY,
                     centerX + radioX, centerY + radioY);
         } else {
-            mTargetRect.set(left, top, right, bottom);
+            mTargetRect.set(border);
         }
 
         Log.i("target", "left: " + mTargetRect.left +
@@ -403,6 +405,25 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             }
             mOnOutOfRangeListener.onOutOfRange(this, offX, offY);
         }
+    }
+
+    /**
+     * 计算目标view的范围
+     */
+    private Rect calculateTargetBorder() {
+        int[] location = new int[2];
+        int left = Integer.MAX_VALUE, top = Integer.MAX_VALUE,
+                right = Integer.MIN_VALUE, bottom = Integer.MIN_VALUE;
+        for (View view : mTargetViewList) {
+            view.getLocationInWindow(location);
+            int targetWidth = view.getWidth();
+            int targetHeight = view.getHeight();
+            left = Math.min(left, location[0] - mTargetPaddingLeft);
+            top = Math.min(top, location[1] - mTargetPaddingTop);
+            right = Math.max(right, location[0] + targetWidth + mTargetPaddingRight);
+            bottom = Math.max(bottom, location[1] + targetHeight + mTargetPaddingBottom);
+        }
+        return new Rect(left, top, right, bottom);
     }
 
     public interface OnDismissListener {
