@@ -39,7 +39,25 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetView(View targetView) {
-        mConfiguration.mTargetView = targetView;
+        if (mConfiguration.mTargetViewList == null) {
+            mConfiguration.mTargetViewList = new ArrayList<>();
+        }
+        mConfiguration.mTargetViewList.clear();
+        mConfiguration.mTargetViewList.add(targetView);
+        return this;
+    }
+
+    /**
+     * 添加引导目标view，项目会把多个目标view高亮区域整合成一块
+     *
+     * @param targetView 引导目标view
+     * @return this
+     */
+    public GuideBuilder addTargetView(View targetView) {
+        if (mConfiguration.mTargetViewList == null) {
+            mConfiguration.mTargetViewList = new ArrayList<>();
+        }
+        mConfiguration.mTargetViewList.add(targetView);
         return this;
     }
 
@@ -254,7 +272,7 @@ public class GuideBuilder {
             return null;
         }
         GuideView guideView = new GuideView(activity);
-        guideView.setTargetView(mConfiguration.mTargetView);
+        guideView.setTargetViewList(mConfiguration.mTargetViewList);
         guideView.setTargetShape(mConfiguration.mTargetShape);
         guideView.setTargetCorner(mConfiguration.mTargetCorner);
         guideView.setTargetRadio(mConfiguration.mTargetRadio);
