@@ -63,13 +63,16 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     private Canvas mEraserCanvas;
 
     private boolean isAnimatorDoing = false;
+    private boolean isTargetDecorView = false;
 
     public void setTargetViewList(List<View> targetViewList) {
         if (mTargetViewList == null) {
             mTargetViewList = new ArrayList<>();
         }
         mTargetViewList.clear();
-        mTargetViewList.addAll(targetViewList);
+        if (targetViewList != null) {
+            mTargetViewList.addAll(targetViewList);
+        }
     }
 
     public void setTargetPaddingLeft(int targetPaddingLeft) {
@@ -219,33 +222,74 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             int left, top, right, bottom;
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
-            switch (mGuideAnchor) {
-                case Configuration.ANCHOR_LEFT:
-                    left = mTargetRect.left - width;
-                    top = mTargetRect.centerY() - height / 2;
-                    right = mTargetRect.left;
-                    bottom = mTargetRect.centerY() + height / 2;
-                    break;
-                case Configuration.ANCHOR_TOP:
-                    left = mTargetRect.centerX() - width / 2;
-                    top = mTargetRect.top - height;
-                    right = mTargetRect.centerX() + width / 2;
-                    bottom = mTargetRect.top;
-                    break;
-                case Configuration.ANCHOR_RIGHT:
-                    left = mTargetRect.right;
-                    top = mTargetRect.centerY() - height / 2;
-                    right = mTargetRect.right + width;
-                    bottom = mTargetRect.centerY() + height / 2;
-                    break;
-                default:
-                case Configuration.ANCHOR_BOTTOM:
-                    left = mTargetRect.centerX() - width / 2;
-                    top = mTargetRect.bottom;
-                    right = mTargetRect.centerX() + width / 2;
-                    bottom = mTargetRect.bottom + height;
-                    break;
-
+            if (!isTargetDecorView) {
+                switch (mGuideAnchor) {
+                    case Configuration.ANCHOR_CENTER:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    case Configuration.ANCHOR_LEFT:
+                        left = mTargetRect.left - width;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.left;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    case Configuration.ANCHOR_TOP:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.top - height;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.top;
+                        break;
+                    case Configuration.ANCHOR_RIGHT:
+                        left = mTargetRect.right;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.right + width;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    default:
+                    case Configuration.ANCHOR_BOTTOM:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.bottom;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.bottom + height;
+                        break;
+                }
+            } else {
+                switch (mGuideAnchor) {
+                    case Configuration.ANCHOR_CENTER:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    case Configuration.ANCHOR_LEFT:
+                        left = mTargetRect.left;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.left + width;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    case Configuration.ANCHOR_TOP:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.top;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.top + height;
+                        break;
+                    case Configuration.ANCHOR_RIGHT:
+                        left = mTargetRect.right - width;
+                        top = mTargetRect.centerY() - height / 2;
+                        right = mTargetRect.right;
+                        bottom = mTargetRect.centerY() + height / 2;
+                        break;
+                    default:
+                    case Configuration.ANCHOR_BOTTOM:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.bottom - height;
+                        right = mTargetRect.centerX() + width / 2;
+                        bottom = mTargetRect.bottom;
+                        break;
+                }
             }
             child.layout(
                     left + mGuideOffsetX, top + mGuideOffsetY,
@@ -256,17 +300,19 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        mTargetShowRectF.set(mTargetRect);
         mEraserBitmap.eraseColor(Color.TRANSPARENT);
         mEraserCanvas.drawColor(mShadowColor);
-        switch (mTargetShape) {
-            case Configuration.SHAPE_OVAL:
-                mEraserCanvas.drawOval(mTargetShowRectF, mEraser);
-                break;
-            case Configuration.SHAPE_RECTANGLE:
-            default:
-                mEraserCanvas.drawRoundRect(mTargetShowRectF, mTargetCorner, mTargetCorner, mEraser);
-                break;
+        if (!isTargetDecorView) {
+            mTargetShowRectF.set(mTargetRect);
+            switch (mTargetShape) {
+                case Configuration.SHAPE_OVAL:
+                    mEraserCanvas.drawOval(mTargetShowRectF, mEraser);
+                    break;
+                case Configuration.SHAPE_RECTANGLE:
+                default:
+                    mEraserCanvas.drawRoundRect(mTargetShowRectF, mTargetCorner, mTargetCorner, mEraser);
+                    break;
+            }
         }
         canvas.drawBitmap(mEraserBitmap, 0, 0, null);
     }
@@ -279,9 +325,12 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        if (mTargetViewList == null || mTargetViewList.size() == 0) {
-            // TODO: 2018/1/18 如果没有传入targetView的处理、
-            return;
+        if (mTargetViewList == null) {
+            mTargetViewList = new ArrayList<>();
+        }
+        if (mTargetViewList.size() == 0) {
+            mTargetViewList.add(activity.getWindow().getDecorView());
+            isTargetDecorView = true;
         }
         View target = mTargetViewList.get(0);
         if (target.getWidth() == 0 && target.getHeight() == 0) {

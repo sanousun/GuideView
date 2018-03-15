@@ -22,10 +22,10 @@ import java.util.List;
 public class Configuration {
 
     public static final int SHAPE_RECTANGLE = 0, SHAPE_OVAL = 1;
-    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3;
+    public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3, ANCHOR_CENTER = 4;
 
     @IntDef({ANCHOR_LEFT, ANCHOR_TOP,
-            ANCHOR_RIGHT, ANCHOR_BOTTOM})
+            ANCHOR_RIGHT, ANCHOR_BOTTOM, ANCHOR_CENTER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface AnchorType {
 
