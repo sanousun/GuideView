@@ -28,12 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/17
- * time: 下午9:15
- * desc: 引导视图
+ * @author dashu
+ * @date  2017/12/17
+ * 引导视图
  */
 
 public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLayoutListener {
@@ -479,13 +476,13 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         /**
          * 蒙层消失时的回调
          */
-        public void onDismiss();
+        void onDismiss();
     }
 
     public interface OnOutOfRangeListener {
         /**
          * 目标超出可视界面
          */
-        public void onOutOfRange(GuideView guideView, int offsetX, int offsetY);
+        void onOutOfRange(GuideView guideView, int offsetX, int offsetY);
     }
 }

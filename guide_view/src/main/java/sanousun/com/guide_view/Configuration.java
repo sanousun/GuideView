@@ -11,12 +11,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/17
- * time: 下午9:30
- * desc: 引导视图的配置项
+ * @author dashu
+ * @date 2017/12/17
+ * 引导视图的配置项
  */
 
 public class Configuration {

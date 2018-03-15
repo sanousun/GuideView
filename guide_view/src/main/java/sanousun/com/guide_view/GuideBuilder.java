@@ -11,14 +11,12 @@ import android.view.View;
 import java.util.ArrayList;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/17
- * time: 下午9:37
- * desc: 引导视图的构造器
+ * @author dashu
+ * @date 2017/12/17
+ * 引导视图的构造器
  */
 
+@SuppressWarnings("unused")
 public class GuideBuilder {
 
     /**
@@ -265,6 +263,8 @@ public class GuideBuilder {
 
     /**
      * 创建引导视图
+     *
+     * @return 引导视图
      */
     private GuideView create() {
         Activity activity = mGuide.getActivity();
@@ -301,6 +301,9 @@ public class GuideBuilder {
      */
     public void show() {
         GuideView guideView = create();
+        if (guideView == null) {
+            return;
+        }
         mGuide.addGuide(guideView);
     }
 }
