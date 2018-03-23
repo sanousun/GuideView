@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.Nullable;
 import android.support.annotation.Px;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -300,10 +301,20 @@ public class GuideBuilder {
      * 直接展示引导视图
      */
     public void show() {
+        showReturnGuide();
+    }
+
+    /**
+     * 展示引导视图，并返回view
+     *
+     * @return 引导视图
+     */
+    @Nullable
+    public GuideView showReturnGuide() {
         GuideView guideView = create();
-        if (guideView == null) {
-            return;
+        if (guideView != null) {
+            mGuide.addGuide(guideView);
         }
-        mGuide.addGuide(guideView);
+        return guideView;
     }
 }

@@ -33,7 +33,7 @@ import java.util.List;
  * 引导视图
  */
 
-public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLayoutListener {
+public class GuideView extends ViewGroup {
 
     private List<View> mTargetViewList;
     private Rect mTargetRect;
@@ -62,7 +62,16 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     private boolean mIsAnimatorDoing = false;
     private boolean mIsTargetDecorView = false;
 
-    public void setTargetViewList(List<View> targetViewList) {
+    private ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener
+            = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            fixLayout();
+            getViewTreeObserver().removeOnGlobalLayoutListener(mOnGlobalLayoutListener);
+        }
+    };
+
+    void setTargetViewList(List<View> targetViewList) {
         if (mTargetViewList == null) {
             mTargetViewList = new ArrayList<>();
         }
@@ -72,96 +81,96 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         }
     }
 
-    public void setTargetPaddingLeft(int targetPaddingLeft) {
+    void setTargetPaddingLeft(int targetPaddingLeft) {
         mTargetPaddingLeft = targetPaddingLeft;
     }
 
-    public void setTargetPaddingTop(int targetPaddingTop) {
+    void setTargetPaddingTop(int targetPaddingTop) {
         mTargetPaddingTop = targetPaddingTop;
     }
 
-    public void setTargetPaddingRight(int targetPaddingRight) {
+    void setTargetPaddingRight(int targetPaddingRight) {
         mTargetPaddingRight = targetPaddingRight;
     }
 
-    public void setTargetPaddingBottom(int targetPaddingBottom) {
+    void setTargetPaddingBottom(int targetPaddingBottom) {
         mTargetPaddingBottom = targetPaddingBottom;
     }
 
-    public void setTargetShape(int targetShape) {
+    void setTargetShape(int targetShape) {
         mTargetShape = targetShape;
     }
 
-    public void setTargetCorner(int targetCorner) {
+    void setTargetCorner(int targetCorner) {
         mTargetCorner = targetCorner;
     }
 
-    public void setTargetRadio(float targetRadio) {
+    void setTargetRadio(float targetRadio) {
         mTargetRadio = targetRadio;
     }
 
-    public void setShadowColor(int shadowColor) {
+    void setShadowColor(int shadowColor) {
         mShadowColor = shadowColor;
     }
 
-    public void setGuideAnchor(int guideAnchor) {
+    void setGuideAnchor(int guideAnchor) {
         mGuideAnchor = guideAnchor;
     }
 
-    public void setGuideOffsetX(int guideOffsetX) {
+    void setGuideOffsetX(int guideOffsetX) {
         mGuideOffsetX = guideOffsetX;
     }
 
-    public void setGuideOffsetY(int guideOffsetY) {
+    void setGuideOffsetY(int guideOffsetY) {
         mGuideOffsetY = guideOffsetY;
     }
 
-    public void setAnimatorShow(int animatorShow) {
+    void setAnimatorShow(int animatorShow) {
         mAnimatorShow = animatorShow;
     }
 
-    public void setAnimatorDismiss(int animatorDismiss) {
+    void setAnimatorDismiss(int animatorDismiss) {
         mAnimatorDismiss = animatorDismiss;
     }
 
-    public void addOnDismissListener(OnDismissListener onDismissListener) {
+    void addOnDismissListener(OnDismissListener onDismissListener) {
         if (mOnDismissListeners == null) {
             mOnDismissListeners = new ArrayList<>();
         }
         mOnDismissListeners.add(onDismissListener);
     }
 
-    public void removeOnDismissListener(OnDismissListener onDismissListener) {
+    void removeOnDismissListener(OnDismissListener onDismissListener) {
         if (mOnDismissListeners != null) {
             mOnDismissListeners.remove(onDismissListener);
         }
     }
 
-    public void clearOnDismissListener() {
+    void clearOnDismissListener() {
         if (mOnDismissListeners != null) {
             mOnDismissListeners.clear();
         }
     }
 
-    public void setOnOutOfRangeListener(OnOutOfRangeListener onOutOfRangeListener) {
+    void setOnOutOfRangeListener(OnOutOfRangeListener onOutOfRangeListener) {
         mOnOutOfRangeListener = onOutOfRangeListener;
     }
 
-    public GuideView(Context context) {
+    GuideView(Context context) {
         this(context, null);
     }
 
-    public GuideView(Context context, @Nullable AttributeSet attrs) {
+    GuideView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initView();
     }
@@ -317,7 +326,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     /**
      * 展示引导视图
      */
-    public void show() {
+    void show() {
         Activity activity = (Activity) getContext();
         if (activity == null || activity.isFinishing()) {
             return;
@@ -331,7 +340,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         }
         View target = mTargetViewList.get(0);
         if (target.getWidth() == 0 && target.getHeight() == 0) {
-            getViewTreeObserver().addOnGlobalLayoutListener(this);
+            getViewTreeObserver().addOnGlobalLayoutListener(mOnGlobalLayoutListener);
         } else {
             fixLayout();
         }
@@ -353,34 +362,41 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mIsAnimatorDoing) {
-                    return;
-                }
-                if (mAnimatorDismiss > 0) {
-                    mIsAnimatorDoing = true;
-                    Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
-                    animator.setTarget(GuideView.this);
-                    animator.start();
-                    animator.addListener(new AnimatorListenerAdapter() {
-                                             @Override
-                                             public void onAnimationEnd(Animator animation) {
-                                                 super.onAnimationEnd(animation);
-                                                 mIsAnimatorDoing = false;
-                                                 dismiss();
-                                             }
-                                         }
-                    );
-                } else {
-                    dismiss();
-                }
+                dismiss();
             }
         });
     }
 
     /**
-     * 引导层消失
+     * 对外暴露的引导层消失操作
      */
     public void dismiss() {
+        if (mIsAnimatorDoing) {
+            return;
+        }
+        if (mAnimatorDismiss > 0) {
+            mIsAnimatorDoing = true;
+            Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
+            animator.setTarget(GuideView.this);
+            animator.start();
+            animator.addListener(new AnimatorListenerAdapter() {
+                                     @Override
+                                     public void onAnimationEnd(Animator animation) {
+                                         super.onAnimationEnd(animation);
+                                         mIsAnimatorDoing = false;
+                                         remove();
+                                     }
+                                 }
+            );
+        } else {
+            remove();
+        }
+    }
+
+    /**
+     * 引导层移除操作
+     */
+    private void remove() {
         ViewGroup parent = (ViewGroup) getParent();
         if (parent != null) {
             parent.removeView(GuideView.this);
@@ -392,12 +408,6 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
                 }
             }
         }
-    }
-
-    @Override
-    public void onGlobalLayout() {
-        fixLayout();
-        getViewTreeObserver().removeOnGlobalLayoutListener(this);
     }
 
     public void fixLayout() {
@@ -449,7 +459,8 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             if (oTop < 0) {
                 offY = -offY;
             }
-            mOnOutOfRangeListener.onOutOfRange(this, offX, offY);
+            mOnOutOfRangeListener.onOutOfRange(offX, offY);
+            fixLayout();
         }
     }
 
@@ -483,6 +494,6 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         /**
          * 目标超出可视界面
          */
-        void onOutOfRange(GuideView guideView, int offsetX, int offsetY);
+        void onOutOfRange(int offsetX, int offsetY);
     }
 }
