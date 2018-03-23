@@ -3,9 +3,11 @@ package sanousun.com.guideview;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import sanousun.com.guide_view.Configuration;
 import sanousun.com.guide_view.Guide;
@@ -20,6 +22,8 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     private TextView world;
     private TextView me;
     private TextView android;
+
+    private GuideView mHelloView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,19 +52,25 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     }
 
     private void showHelloGuide() {
-        mGuide.createGuide()
-                .setTargetView(hello)
-                .addTargetView(world)
-                .setTargetShape(Configuration.SHAPE_OVAL)
-                .setTargetRadio(0.5f)
-                .setTargetPadding(SizeUtils.dp2px(this, 5f))
+        View view = LayoutInflater.from(this).inflate(R.layout.view_guide_3, null);
+        View title = view.findViewById(R.id.tv_title);
+        title.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(MainActivity.this, "点击了", Toast.LENGTH_SHORT).show();
+                if (mHelloView != null) {
+                    mHelloView.dismiss();
+                }
+            }
+        });
+        mHelloView = mGuide.createGuide()
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_TOP)
-                .setGuideView(R.layout.view_guide_2)
+                .setGuideAnchorType(Configuration.ANCHOR_CENTER)
+                .setGuideView(view)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
                 .setOnOutOfRangeListener(this)
-                .show();
+                .showReturnGuide();
     }
 
     private void showWorldGuide() {
@@ -110,8 +120,7 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     }
 
     @Override
-    public void onOutOfRange(GuideView guideView, int offsetX, int offsetY) {
+    public void onOutOfRange(int offsetX, int offsetY) {
         scrollView.scrollBy(offsetX, offsetY);
-        guideView.fixLayout();
     }
 }
