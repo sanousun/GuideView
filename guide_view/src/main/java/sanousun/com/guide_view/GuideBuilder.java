@@ -301,6 +301,9 @@ public class GuideBuilder {
      */
     public void show() {
         GuideView guideView = create();
+        if (guideView == null) {
+            return;
+        }
         mGuide.addGuide(guideView);
     }
 }
