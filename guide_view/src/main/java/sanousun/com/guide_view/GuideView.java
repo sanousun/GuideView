@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * @author dashu
- * @date  2017/12/17
+ * @date 2017/12/17
  * 引导视图
  */
 
@@ -59,8 +59,8 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
     private Bitmap mEraserBitmap;
     private Canvas mEraserCanvas;
 
-    private boolean isAnimatorDoing = false;
-    private boolean isTargetDecorView = false;
+    private boolean mIsAnimatorDoing = false;
+    private boolean mIsTargetDecorView = false;
 
     public void setTargetViewList(List<View> targetViewList) {
         if (mTargetViewList == null) {
@@ -219,7 +219,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             int left, top, right, bottom;
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
-            if (!isTargetDecorView) {
+            if (!mIsTargetDecorView) {
                 switch (mGuideAnchor) {
                     case Configuration.ANCHOR_CENTER:
                         left = mTargetRect.centerX() - width / 2;
@@ -299,7 +299,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         super.onDraw(canvas);
         mEraserBitmap.eraseColor(Color.TRANSPARENT);
         mEraserCanvas.drawColor(mShadowColor);
-        if (!isTargetDecorView) {
+        if (!mIsTargetDecorView) {
             mTargetShowRectF.set(mTargetRect);
             switch (mTargetShape) {
                 case Configuration.SHAPE_OVAL:
@@ -327,7 +327,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         }
         if (mTargetViewList.size() == 0) {
             mTargetViewList.add(activity.getWindow().getDecorView());
-            isTargetDecorView = true;
+            mIsTargetDecorView = true;
         }
         View target = mTargetViewList.get(0);
         if (target.getWidth() == 0 && target.getHeight() == 0) {
@@ -338,7 +338,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         parent.addView(GuideView.this);
         if (mAnimatorShow > 0) {
-            isAnimatorDoing = true;
+            mIsAnimatorDoing = true;
             Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorShow);
             animator.setTarget(GuideView.this);
             animator.start();
@@ -346,18 +346,18 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
-                    isAnimatorDoing = false;
+                    mIsAnimatorDoing = false;
                 }
             });
         }
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isAnimatorDoing) {
+                if (mIsAnimatorDoing) {
                     return;
                 }
                 if (mAnimatorDismiss > 0) {
-                    isAnimatorDoing = true;
+                    mIsAnimatorDoing = true;
                     Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
                     animator.setTarget(GuideView.this);
                     animator.start();
@@ -365,7 +365,7 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
                                              @Override
                                              public void onAnimationEnd(Animator animation) {
                                                  super.onAnimationEnd(animation);
-                                                 isAnimatorDoing = false;
+                                                 mIsAnimatorDoing = false;
                                                  dismiss();
                                              }
                                          }
