@@ -9,7 +9,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import sanousun.com.guide_view.Configuration;
+import sanousun.com.guide_view.GuideConfig;
 import sanousun.com.guide_view.Guide;
 import sanousun.com.guide_view.GuideView;
 import sanousun.com.guide_view.SizeUtils;
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
         });
         mHelloView = mGuide.createGuide()
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_CENTER)
+                .setGuideAnchorType(GuideConfig.ANCHOR_CENTER)
                 .setGuideView(view)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
@@ -77,11 +77,11 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
         mGuide.createGuide()
                 .setTargetView(world)
                 .addTargetView(me)
-                .setTargetShape(Configuration.SHAPE_RECTANGLE)
+                .setTargetShape(GuideConfig.SHAPE_RECTANGLE)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setTargetCorner(SizeUtils.dp2px(this, 2f))
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_TOP)
+                .setGuideAnchorType(GuideConfig.ANCHOR_TOP)
                 .setGuideView(R.layout.view_guide_2)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
@@ -92,11 +92,11 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     private void showMeGuide() {
         mGuide.createGuide()
                 .setTargetView(me)
-                .setTargetShape(Configuration.SHAPE_OVAL)
+                .setTargetShape(GuideConfig.SHAPE_OVAL)
                 .setTargetRadio(0.5f)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_TOP)
+                .setGuideAnchorType(GuideConfig.ANCHOR_TOP)
                 .setGuideView(R.layout.view_guide_2)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)
@@ -107,11 +107,11 @@ public class MainActivity extends AppCompatActivity implements GuideView.OnOutOf
     private void showAndroidGuide() {
         mGuide.createGuide()
                 .setTargetView(android)
-                .setTargetShape(Configuration.SHAPE_RECTANGLE)
+                .setTargetShape(GuideConfig.SHAPE_RECTANGLE)
                 .setTargetPadding(SizeUtils.dp2px(this, 5f))
                 .setTargetCorner(SizeUtils.dp2px(this, 2f))
                 .setShadowColor(Color.parseColor("#88000000"))
-                .setGuideAnchorType(Configuration.ANCHOR_TOP)
+                .setGuideAnchorType(GuideConfig.ANCHOR_TOP)
                 .setGuideView(R.layout.view_guide_2)
                 .setAnimatorShow(R.animator.animator_show)
                 .setAnimatorDismiss(R.animator.animator_hide)

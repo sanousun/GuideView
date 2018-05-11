@@ -25,7 +25,6 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author dashu
@@ -35,25 +34,11 @@ import java.util.List;
 
 public class GuideView extends ViewGroup {
 
-    private List<View> mTargetViewList;
+    private GuideConfig mGuideConfig;
     private Rect mTargetRect;
     private RectF mTargetShowRectF;
-    private int mTargetPaddingLeft;
-    private int mTargetPaddingTop;
-    private int mTargetPaddingRight;
-    private int mTargetPaddingBottom;
-    private int mTargetShape;
-    private int mTargetCorner;
-    private float mTargetRadio;
-    private int mShadowColor;
-    private int mGuideAnchor;
-    private int mGuideOffsetX;
-    private int mGuideOffsetY;
 
-    private int mAnimatorShow;
-    private int mAnimatorDismiss;
-    private List<OnDismissListener> mOnDismissListeners;
-    private OnOutOfRangeListener mOnOutOfRangeListener;
+    private OnDismissListener mSystemDismissListener;
 
     private Paint mEraser;
     private Bitmap mEraserBitmap;
@@ -71,89 +56,17 @@ public class GuideView extends ViewGroup {
         }
     };
 
-    void setTargetViewList(List<View> targetViewList) {
-        if (mTargetViewList == null) {
-            mTargetViewList = new ArrayList<>();
-        }
-        mTargetViewList.clear();
-        if (targetViewList != null) {
-            mTargetViewList.addAll(targetViewList);
-        }
+    void setGuideConfig(GuideConfig guideConfig) {
+        mGuideConfig = guideConfig;
     }
 
-    void setTargetPaddingLeft(int targetPaddingLeft) {
-        mTargetPaddingLeft = targetPaddingLeft;
-    }
-
-    void setTargetPaddingTop(int targetPaddingTop) {
-        mTargetPaddingTop = targetPaddingTop;
-    }
-
-    void setTargetPaddingRight(int targetPaddingRight) {
-        mTargetPaddingRight = targetPaddingRight;
-    }
-
-    void setTargetPaddingBottom(int targetPaddingBottom) {
-        mTargetPaddingBottom = targetPaddingBottom;
-    }
-
-    void setTargetShape(int targetShape) {
-        mTargetShape = targetShape;
-    }
-
-    void setTargetCorner(int targetCorner) {
-        mTargetCorner = targetCorner;
-    }
-
-    void setTargetRadio(float targetRadio) {
-        mTargetRadio = targetRadio;
-    }
-
-    void setShadowColor(int shadowColor) {
-        mShadowColor = shadowColor;
-    }
-
-    void setGuideAnchor(int guideAnchor) {
-        mGuideAnchor = guideAnchor;
-    }
-
-    void setGuideOffsetX(int guideOffsetX) {
-        mGuideOffsetX = guideOffsetX;
-    }
-
-    void setGuideOffsetY(int guideOffsetY) {
-        mGuideOffsetY = guideOffsetY;
-    }
-
-    void setAnimatorShow(int animatorShow) {
-        mAnimatorShow = animatorShow;
-    }
-
-    void setAnimatorDismiss(int animatorDismiss) {
-        mAnimatorDismiss = animatorDismiss;
-    }
-
-    void addOnDismissListener(OnDismissListener onDismissListener) {
-        if (mOnDismissListeners == null) {
-            mOnDismissListeners = new ArrayList<>();
-        }
-        mOnDismissListeners.add(onDismissListener);
-    }
-
-    void removeOnDismissListener(OnDismissListener onDismissListener) {
-        if (mOnDismissListeners != null) {
-            mOnDismissListeners.remove(onDismissListener);
-        }
-    }
-
-    void clearOnDismissListener() {
-        if (mOnDismissListeners != null) {
-            mOnDismissListeners.clear();
-        }
-    }
-
-    void setOnOutOfRangeListener(OnOutOfRangeListener onOutOfRangeListener) {
-        mOnOutOfRangeListener = onOutOfRangeListener;
+    /**
+     * 提供给{@link Guide#showGuide()}方法的 dismiss 方法
+     *
+     * @param systemDismissListener 移除监听
+     */
+    void setSystemDismissListener(OnDismissListener systemDismissListener) {
+        mSystemDismissListener = systemDismissListener;
     }
 
     GuideView(Context context) {
@@ -229,33 +142,33 @@ public class GuideView extends ViewGroup {
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
             if (!mIsTargetDecorView) {
-                switch (mGuideAnchor) {
-                    case Configuration.ANCHOR_CENTER:
+                switch (mGuideConfig.mGuideAnchorType) {
+                    case GuideConfig.ANCHOR_CENTER:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.centerX() + width / 2;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
-                    case Configuration.ANCHOR_LEFT:
+                    case GuideConfig.ANCHOR_LEFT:
                         left = mTargetRect.left - width;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.left;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
-                    case Configuration.ANCHOR_TOP:
+                    case GuideConfig.ANCHOR_TOP:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.top - height;
                         right = mTargetRect.centerX() + width / 2;
                         bottom = mTargetRect.top;
                         break;
-                    case Configuration.ANCHOR_RIGHT:
+                    case GuideConfig.ANCHOR_RIGHT:
                         left = mTargetRect.right;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.right + width;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
                     default:
-                    case Configuration.ANCHOR_BOTTOM:
+                    case GuideConfig.ANCHOR_BOTTOM:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.bottom;
                         right = mTargetRect.centerX() + width / 2;
@@ -263,33 +176,33 @@ public class GuideView extends ViewGroup {
                         break;
                 }
             } else {
-                switch (mGuideAnchor) {
-                    case Configuration.ANCHOR_CENTER:
+                switch (mGuideConfig.mGuideAnchorType) {
+                    case GuideConfig.ANCHOR_CENTER:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.centerX() + width / 2;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
-                    case Configuration.ANCHOR_LEFT:
+                    case GuideConfig.ANCHOR_LEFT:
                         left = mTargetRect.left;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.left + width;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
-                    case Configuration.ANCHOR_TOP:
+                    case GuideConfig.ANCHOR_TOP:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.top;
                         right = mTargetRect.centerX() + width / 2;
                         bottom = mTargetRect.top + height;
                         break;
-                    case Configuration.ANCHOR_RIGHT:
+                    case GuideConfig.ANCHOR_RIGHT:
                         left = mTargetRect.right - width;
                         top = mTargetRect.centerY() - height / 2;
                         right = mTargetRect.right;
                         bottom = mTargetRect.centerY() + height / 2;
                         break;
                     default:
-                    case Configuration.ANCHOR_BOTTOM:
+                    case GuideConfig.ANCHOR_BOTTOM:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.bottom - height;
                         right = mTargetRect.centerX() + width / 2;
@@ -298,8 +211,10 @@ public class GuideView extends ViewGroup {
                 }
             }
             child.layout(
-                    left + mGuideOffsetX, top + mGuideOffsetY,
-                    right + mGuideOffsetX, bottom + mGuideOffsetY);
+                    left + mGuideConfig.mGuideOffsetX,
+                    top + mGuideConfig.mGuideOffsetY,
+                    right + mGuideConfig.mGuideOffsetX,
+                    bottom + mGuideConfig.mGuideOffsetY);
         }
     }
 
@@ -307,16 +222,17 @@ public class GuideView extends ViewGroup {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         mEraserBitmap.eraseColor(Color.TRANSPARENT);
-        mEraserCanvas.drawColor(mShadowColor);
+        mEraserCanvas.drawColor(mGuideConfig.mShadowColor);
         if (!mIsTargetDecorView) {
             mTargetShowRectF.set(mTargetRect);
-            switch (mTargetShape) {
-                case Configuration.SHAPE_OVAL:
+            switch (mGuideConfig.mTargetShape) {
+                case GuideConfig.SHAPE_OVAL:
                     mEraserCanvas.drawOval(mTargetShowRectF, mEraser);
                     break;
-                case Configuration.SHAPE_RECTANGLE:
+                case GuideConfig.SHAPE_RECTANGLE:
                 default:
-                    mEraserCanvas.drawRoundRect(mTargetShowRectF, mTargetCorner, mTargetCorner, mEraser);
+                    mEraserCanvas.drawRoundRect(mTargetShowRectF,
+                            mGuideConfig.mTargetCorner, mGuideConfig.mTargetCorner, mEraser);
                     break;
             }
         }
@@ -331,14 +247,14 @@ public class GuideView extends ViewGroup {
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        if (mTargetViewList == null) {
-            mTargetViewList = new ArrayList<>();
+        if (mGuideConfig.mTargetViewList == null) {
+            mGuideConfig.mTargetViewList = new ArrayList<>();
         }
-        if (mTargetViewList.size() == 0) {
-            mTargetViewList.add(activity.getWindow().getDecorView());
+        if (mGuideConfig.mTargetViewList.size() == 0) {
+            mGuideConfig.mTargetViewList.add(activity.getWindow().getDecorView());
             mIsTargetDecorView = true;
         }
-        View target = mTargetViewList.get(0);
+        View target = mGuideConfig.mTargetViewList.get(0);
         if (target.getWidth() == 0 && target.getHeight() == 0) {
             getViewTreeObserver().addOnGlobalLayoutListener(mOnGlobalLayoutListener);
         } else {
@@ -346,9 +262,9 @@ public class GuideView extends ViewGroup {
         }
         ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         parent.addView(GuideView.this);
-        if (mAnimatorShow > 0) {
+        if (mGuideConfig.mAnimatorShow > 0) {
             mIsAnimatorDoing = true;
-            Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorShow);
+            Animator animator = AnimatorInflater.loadAnimator(getContext(), mGuideConfig.mAnimatorShow);
             animator.setTarget(GuideView.this);
             animator.start();
             animator.addListener(new AnimatorListenerAdapter() {
@@ -369,14 +285,15 @@ public class GuideView extends ViewGroup {
 
     /**
      * 对外暴露的引导层消失操作
+     * 如果手动调用请确保当前蒙层是最前面的蒙层
      */
     public void dismiss() {
         if (mIsAnimatorDoing) {
             return;
         }
-        if (mAnimatorDismiss > 0) {
+        if (mGuideConfig.mAnimatorDismiss > 0) {
             mIsAnimatorDoing = true;
-            Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
+            Animator animator = AnimatorInflater.loadAnimator(getContext(), mGuideConfig.mAnimatorDismiss);
             animator.setTarget(GuideView.this);
             animator.start();
             animator.addListener(new AnimatorListenerAdapter() {
@@ -401,8 +318,11 @@ public class GuideView extends ViewGroup {
         if (parent != null) {
             parent.removeView(GuideView.this);
         }
-        if (mOnDismissListeners != null) {
-            for (OnDismissListener onDismissListener : mOnDismissListeners) {
+        if (mSystemDismissListener != null) {
+            mSystemDismissListener.onDismiss();
+        }
+        if (mGuideConfig.mOnDismissListeners != null) {
+            for (OnDismissListener onDismissListener : mGuideConfig.mOnDismissListeners) {
                 if (onDismissListener != null) {
                     onDismissListener.onDismiss();
                 }
@@ -414,16 +334,16 @@ public class GuideView extends ViewGroup {
         // 将该布局提到最前面
         bringToFront();
         Rect border = calculateTargetBorder();
-        if (mTargetShape == Configuration.SHAPE_OVAL) {
+        if (mGuideConfig.mTargetShape == GuideConfig.SHAPE_OVAL) {
             int centerX = (border.right + border.left) / 2;
             int centerY = (border.top + border.bottom) / 2;
             int radioX, radioY;
             if ((border.right - border.left) > (border.bottom - border.top)) {
                 radioX = (border.right - border.left) / 2;
-                radioY = (int) (radioX * mTargetRadio);
+                radioY = (int) (radioX * mGuideConfig.mTargetRadio);
             } else {
                 radioY = (border.bottom - border.top) / 2;
-                radioX = (int) (radioY * mTargetRadio);
+                radioX = (int) (radioY * mGuideConfig.mTargetRadio);
             }
             mTargetRect.set(
                     centerX - radioX, centerY - radioY,
@@ -447,7 +367,8 @@ public class GuideView extends ViewGroup {
         int oBottom = mTargetRect.bottom - deviceRect.bottom;
         // 正常应该是一正一负，考虑到目标是大于窗口的请况可能会-负-零或者一零一零
         // 不正常的情况则是两正或者两负
-        if (oLeft * oRight <= 0 && oTop * oBottom <= 0 || mOnOutOfRangeListener == null) {
+        if (oLeft * oRight <= 0 && oTop * oBottom <= 0
+                || mGuideConfig.mOnOutOfRangeListener == null) {
             requestLayout();
         } else {
             int offX, offY;
@@ -459,7 +380,7 @@ public class GuideView extends ViewGroup {
             if (oTop < 0) {
                 offY = -offY;
             }
-            mOnOutOfRangeListener.onOutOfRange(offX, offY);
+            mGuideConfig.mOnOutOfRangeListener.onOutOfRange(offX, offY);
             fixLayout();
         }
     }
@@ -471,14 +392,14 @@ public class GuideView extends ViewGroup {
         int[] location = new int[2];
         int left = Integer.MAX_VALUE, top = Integer.MAX_VALUE,
                 right = Integer.MIN_VALUE, bottom = Integer.MIN_VALUE;
-        for (View view : mTargetViewList) {
+        for (View view : mGuideConfig.mTargetViewList) {
             view.getLocationInWindow(location);
             int targetWidth = view.getWidth();
             int targetHeight = view.getHeight();
-            left = Math.min(left, location[0] - mTargetPaddingLeft);
-            top = Math.min(top, location[1] - mTargetPaddingTop);
-            right = Math.max(right, location[0] + targetWidth + mTargetPaddingRight);
-            bottom = Math.max(bottom, location[1] + targetHeight + mTargetPaddingBottom);
+            left = Math.min(left, location[0] - mGuideConfig.getTargetPaddingLeft());
+            top = Math.min(top, location[1] - mGuideConfig.getTargetPaddingTop());
+            right = Math.max(right, location[0] + targetWidth + mGuideConfig.getTargetPaddingRight());
+            bottom = Math.max(bottom, location[1] + targetHeight + mGuideConfig.getTargetPaddingBottom());
         }
         return new Rect(left, top, right, bottom);
     }

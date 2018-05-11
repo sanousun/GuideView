@@ -23,12 +23,12 @@ public class GuideBuilder {
     /**
      * 引导配置项
      */
-    private Configuration mConfiguration;
+    private GuideConfig mGuideConfig;
     private Guide mGuide;
 
     public GuideBuilder(Guide guide) {
         mGuide = guide;
-        mConfiguration = new Configuration();
+        mGuideConfig = new GuideConfig();
     }
 
     /**
@@ -38,11 +38,11 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetView(View targetView) {
-        if (mConfiguration.mTargetViewList == null) {
-            mConfiguration.mTargetViewList = new ArrayList<>();
+        if (mGuideConfig.mTargetViewList == null) {
+            mGuideConfig.mTargetViewList = new ArrayList<>();
         }
-        mConfiguration.mTargetViewList.clear();
-        mConfiguration.mTargetViewList.add(targetView);
+        mGuideConfig.mTargetViewList.clear();
+        mGuideConfig.mTargetViewList.add(targetView);
         return this;
     }
 
@@ -53,10 +53,10 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder addTargetView(View targetView) {
-        if (mConfiguration.mTargetViewList == null) {
-            mConfiguration.mTargetViewList = new ArrayList<>();
+        if (mGuideConfig.mTargetViewList == null) {
+            mGuideConfig.mTargetViewList = new ArrayList<>();
         }
-        mConfiguration.mTargetViewList.add(targetView);
+        mGuideConfig.mTargetViewList.add(targetView);
         return this;
     }
 
@@ -66,8 +66,8 @@ public class GuideBuilder {
      * @param targetShape 引导目标的展示形状
      * @return this
      */
-    public GuideBuilder setTargetShape(@Configuration.ShapeType int targetShape) {
-        mConfiguration.mTargetShape = targetShape;
+    public GuideBuilder setTargetShape(@GuideConfig.ShapeType int targetShape) {
+        mGuideConfig.mTargetShape = targetShape;
         return this;
     }
 
@@ -78,7 +78,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetCorner(@Px int targetCorner) {
-        mConfiguration.mTargetCorner = targetCorner;
+        mGuideConfig.mTargetCorner = targetCorner;
         return this;
     }
 
@@ -90,7 +90,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetRadio(float targetRadio) {
-        mConfiguration.mTargetRadio = targetRadio;
+        mGuideConfig.mTargetRadio = targetRadio;
         return this;
     }
 
@@ -101,7 +101,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetPadding(@Px int padding) {
-        mConfiguration.mTargetPadding = padding;
+        mGuideConfig.mTargetPadding = padding;
         return this;
     }
 
@@ -113,8 +113,8 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setTargetPadding(@Px int paddingHorizontal, @Px int paddingVertical) {
-        mConfiguration.mTargetPaddingHorizontal = paddingHorizontal;
-        mConfiguration.mTargetPaddingVertical = paddingVertical;
+        mGuideConfig.mTargetPaddingHorizontal = paddingHorizontal;
+        mGuideConfig.mTargetPaddingVertical = paddingVertical;
         return this;
     }
 
@@ -129,10 +129,10 @@ public class GuideBuilder {
      */
     public GuideBuilder setTargetPadding(@Px int paddingLeft, @Px int paddingTop,
                                          @Px int paddingRight, @Px int paddingBottom) {
-        mConfiguration.mTargetPaddingLeft = paddingLeft;
-        mConfiguration.mTargetPaddingTop = paddingTop;
-        mConfiguration.mTargetPaddingRight = paddingRight;
-        mConfiguration.mTargetPaddingBottom = paddingBottom;
+        mGuideConfig.mTargetPaddingLeft = paddingLeft;
+        mGuideConfig.mTargetPaddingTop = paddingTop;
+        mGuideConfig.mTargetPaddingRight = paddingRight;
+        mGuideConfig.mTargetPaddingBottom = paddingBottom;
         return this;
     }
 
@@ -144,7 +144,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setShadowView(View shadowView) {
-        mConfiguration.mShadowView = shadowView;
+        mGuideConfig.mShadowView = shadowView;
         return this;
     }
 
@@ -155,7 +155,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setShadowColor(@ColorInt int shadowColor) {
-        mConfiguration.mShadowColor = shadowColor;
+        mGuideConfig.mShadowColor = shadowColor;
         return this;
     }
 
@@ -166,7 +166,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setGuideView(@LayoutRes int guideView) {
-        mConfiguration.mGuideView = LayoutInflater.from(mGuide.getActivity())
+        mGuideConfig.mGuideView = LayoutInflater.from(mGuide.getActivity())
                 .inflate(guideView, null, false);
         return this;
     }
@@ -178,7 +178,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setGuideView(View guideView) {
-        mConfiguration.mGuideView = guideView;
+        mGuideConfig.mGuideView = guideView;
         return this;
     }
 
@@ -188,8 +188,8 @@ public class GuideBuilder {
      * @param guideAnchorType 锚点类型
      * @return this
      */
-    public GuideBuilder setGuideAnchorType(@Configuration.AnchorType int guideAnchorType) {
-        mConfiguration.mGuideAnchorType = guideAnchorType;
+    public GuideBuilder setGuideAnchorType(@GuideConfig.AnchorType int guideAnchorType) {
+        mGuideConfig.mGuideAnchorType = guideAnchorType;
         return this;
     }
 
@@ -200,7 +200,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setGuideOffsetX(@Px int guideOffsetX) {
-        mConfiguration.mGuideOffsetX = guideOffsetX;
+        mGuideConfig.mGuideOffsetX = guideOffsetX;
         return this;
     }
 
@@ -211,7 +211,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setGuideOffsetY(@Px int guideOffsetY) {
-        mConfiguration.mGuideOffsetY = guideOffsetY;
+        mGuideConfig.mGuideOffsetY = guideOffsetY;
         return this;
     }
 
@@ -222,7 +222,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setAnimatorShow(@AnimatorRes int animatorShow) {
-        mConfiguration.mAnimatorShow = animatorShow;
+        mGuideConfig.mAnimatorShow = animatorShow;
         return this;
     }
 
@@ -233,7 +233,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setAnimatorDismiss(@AnimatorRes int animatorDismiss) {
-        mConfiguration.mAnimatorDismiss = animatorDismiss;
+        mGuideConfig.mAnimatorDismiss = animatorDismiss;
         return this;
     }
 
@@ -244,10 +244,10 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder addOnDismissListener(GuideView.OnDismissListener onDismissListener) {
-        if (mConfiguration.mOnDismissListeners == null) {
-            mConfiguration.mOnDismissListeners = new ArrayList<>();
+        if (mGuideConfig.mOnDismissListeners == null) {
+            mGuideConfig.mOnDismissListeners = new ArrayList<>();
         }
-        mConfiguration.mOnDismissListeners.add(onDismissListener);
+        mGuideConfig.mOnDismissListeners.add(onDismissListener);
         return this;
     }
 
@@ -258,7 +258,7 @@ public class GuideBuilder {
      * @return this
      */
     public GuideBuilder setOnOutOfRangeListener(GuideView.OnOutOfRangeListener onOutOfRangeListener) {
-        mConfiguration.mOnOutOfRangeListener = onOutOfRangeListener;
+        mGuideConfig.mOnOutOfRangeListener = onOutOfRangeListener;
         return this;
     }
 
@@ -273,27 +273,8 @@ public class GuideBuilder {
             return null;
         }
         GuideView guideView = new GuideView(activity);
-        guideView.setTargetViewList(mConfiguration.mTargetViewList);
-        guideView.setTargetShape(mConfiguration.mTargetShape);
-        guideView.setTargetCorner(mConfiguration.mTargetCorner);
-        guideView.setTargetRadio(mConfiguration.mTargetRadio);
-        guideView.setTargetPaddingLeft(mConfiguration.getTargetPaddingLeft());
-        guideView.setTargetPaddingTop(mConfiguration.getTargetPaddingTop());
-        guideView.setTargetPaddingRight(mConfiguration.getTargetPaddingRight());
-        guideView.setTargetPaddingBottom(mConfiguration.getTargetPaddingBottom());
-        guideView.setShadowColor(mConfiguration.mShadowColor);
-        guideView.setGuideAnchor(mConfiguration.mGuideAnchorType);
-        guideView.setGuideOffsetX(mConfiguration.mGuideOffsetX);
-        guideView.setGuideOffsetY(mConfiguration.mGuideOffsetY);
-        guideView.setAnimatorShow(mConfiguration.mAnimatorShow);
-        guideView.setAnimatorDismiss(mConfiguration.mAnimatorDismiss);
-        guideView.addView(mConfiguration.mGuideView);
-        if (mConfiguration.mOnDismissListeners != null) {
-            for (GuideView.OnDismissListener onDismissListener : mConfiguration.mOnDismissListeners) {
-                guideView.addOnDismissListener(onDismissListener);
-            }
-        }
-        guideView.setOnOutOfRangeListener(mConfiguration.mOnOutOfRangeListener);
+        guideView.setGuideConfig(mGuideConfig);
+        guideView.addView(mGuideConfig.mGuideView);
         return guideView;
     }
 

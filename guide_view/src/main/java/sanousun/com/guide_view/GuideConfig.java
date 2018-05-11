@@ -16,7 +16,7 @@ import java.util.List;
  * 引导视图的配置项
  */
 
-public class Configuration {
+public class GuideConfig {
 
     public static final int SHAPE_RECTANGLE = 0, SHAPE_OVAL = 1;
     public static final int ANCHOR_LEFT = 0, ANCHOR_TOP = 1, ANCHOR_RIGHT = 2, ANCHOR_BOTTOM = 3, ANCHOR_CENTER = 4;
@@ -24,14 +24,12 @@ public class Configuration {
     @IntDef({ANCHOR_LEFT, ANCHOR_TOP,
             ANCHOR_RIGHT, ANCHOR_BOTTOM, ANCHOR_CENTER})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AnchorType {
-
+    @interface AnchorType {
     }
 
     @IntDef({SHAPE_RECTANGLE, SHAPE_OVAL})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ShapeType {
-
+    @interface ShapeType {
     }
 
     /**

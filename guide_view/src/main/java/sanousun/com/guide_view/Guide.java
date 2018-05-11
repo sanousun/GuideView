@@ -67,7 +67,7 @@ public class Guide {
             return;
         }
         GuideView guideView = mGuideViews.getFirst();
-        guideView.addOnDismissListener(new GuideView.OnDismissListener() {
+        guideView.setSystemDismissListener(new GuideView.OnDismissListener() {
             @Override
             public void onDismiss() {
                 mGuideViews.removeFirst();
