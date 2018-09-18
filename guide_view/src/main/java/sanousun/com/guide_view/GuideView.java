@@ -25,139 +25,65 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/17
- * time: 下午9:15
- * desc: 引导视图
+ * @author dashu
+ * 2017/12/17
+ * 引导视图
  */
 
-public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLayoutListener {
+public class GuideView extends ViewGroup {
 
-    private View mTargetView;
+    private GuideConfig mGuideConfig;
     private Rect mTargetRect;
     private RectF mTargetShowRectF;
-    private int mTargetPaddingLeft;
-    private int mTargetPaddingTop;
-    private int mTargetPaddingRight;
-    private int mTargetPaddingBottom;
-    private int mTargetShape;
-    private int mTargetCorner;
-    private float mTargetRadio;
-    private int mShadowColor;
-    private int mGuideAnchor;
-    private int mGuideOffsetX;
-    private int mGuideOffsetY;
 
-    private int mAnimatorShow;
-    private int mAnimatorDismiss;
-    private List<OnDismissListener> mOnDismissListeners;
-    private OnOutOfRangeListener mOnOutOfRangeListener;
+    private OnDismissListener mSystemDismissListener;
 
     private Paint mEraser;
     private Bitmap mEraserBitmap;
     private Canvas mEraserCanvas;
 
-    private boolean isAnimatorDoing = false;
+    private boolean mIsAnimatorDoing = false;
+    private boolean mIsTargetDecorView = false;
 
-    public void setTargetView(View targetView) {
-        mTargetView = targetView;
-    }
-
-    public void setTargetPaddingLeft(int targetPaddingLeft) {
-        mTargetPaddingLeft = targetPaddingLeft;
-    }
-
-    public void setTargetPaddingTop(int targetPaddingTop) {
-        mTargetPaddingTop = targetPaddingTop;
-    }
-
-    public void setTargetPaddingRight(int targetPaddingRight) {
-        mTargetPaddingRight = targetPaddingRight;
-    }
-
-    public void setTargetPaddingBottom(int targetPaddingBottom) {
-        mTargetPaddingBottom = targetPaddingBottom;
-    }
-
-    public void setTargetShape(int targetShape) {
-        mTargetShape = targetShape;
-    }
-
-    public void setTargetCorner(int targetCorner) {
-        mTargetCorner = targetCorner;
-    }
-
-    public void setTargetRadio(float targetRadio) {
-        mTargetRadio = targetRadio;
-    }
-
-    public void setShadowColor(int shadowColor) {
-        mShadowColor = shadowColor;
-    }
-
-    public void setGuideAnchor(int guideAnchor) {
-        mGuideAnchor = guideAnchor;
-    }
-
-    public void setGuideOffsetX(int guideOffsetX) {
-        mGuideOffsetX = guideOffsetX;
-    }
-
-    public void setGuideOffsetY(int guideOffsetY) {
-        mGuideOffsetY = guideOffsetY;
-    }
-
-    public void setAnimatorShow(int animatorShow) {
-        mAnimatorShow = animatorShow;
-    }
-
-    public void setAnimatorDismiss(int animatorDismiss) {
-        mAnimatorDismiss = animatorDismiss;
-    }
-
-    public void addOnDismissListener(OnDismissListener onDismissListener) {
-        if (mOnDismissListeners == null) {
-            mOnDismissListeners = new ArrayList<>();
+    private ViewTreeObserver.OnGlobalLayoutListener mOnGlobalLayoutListener
+            = new ViewTreeObserver.OnGlobalLayoutListener() {
+        @Override
+        public void onGlobalLayout() {
+            fixLayout();
+            getViewTreeObserver().removeOnGlobalLayoutListener(mOnGlobalLayoutListener);
         }
-        mOnDismissListeners.add(onDismissListener);
+    };
+
+    void setGuideConfig(GuideConfig guideConfig) {
+        mGuideConfig = guideConfig;
     }
 
-    public void removeOnDismissListener(OnDismissListener onDismissListener) {
-        if (mOnDismissListeners != null) {
-            mOnDismissListeners.remove(onDismissListener);
-        }
+    /**
+     * 提供给{@link Guide#showGuide()}方法的 dismiss 方法
+     *
+     * @param systemDismissListener 移除监听
+     */
+    void setSystemDismissListener(OnDismissListener systemDismissListener) {
+        mSystemDismissListener = systemDismissListener;
     }
 
-    public void clearOnDismissListener() {
-        if (mOnDismissListeners != null) {
-            mOnDismissListeners.clear();
-        }
-    }
-
-    public void setOnOutOfRangeListener(OnOutOfRangeListener onOutOfRangeListener) {
-        mOnOutOfRangeListener = onOutOfRangeListener;
-    }
-
-    public GuideView(Context context) {
+    GuideView(Context context) {
         this(context, null);
     }
 
-    public GuideView(Context context, @Nullable AttributeSet attrs) {
+    GuideView(Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initView();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    GuideView(Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initView();
     }
@@ -174,8 +100,6 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
 
         mTargetRect = new Rect();
         mTargetShowRectF = new RectF();
-        // 设置了颜色才会调用onDraw()，否则不会触发
-        setBackgroundColor(Color.TRANSPARENT);
     }
 
     @Override
@@ -215,123 +139,168 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             int left, top, right, bottom;
             int width = child.getMeasuredWidth();
             int height = child.getMeasuredHeight();
-            switch (mGuideAnchor) {
-                case Configuration.ANCHOR_LEFT:
-                    left = mTargetRect.left - width;
-                    top = mTargetRect.centerY() - height / 2;
-                    right = mTargetRect.left;
-                    bottom = mTargetRect.centerY() + height / 2;
-                    break;
-                case Configuration.ANCHOR_TOP:
-                    left = mTargetRect.centerX() - width / 2;
-                    top = mTargetRect.top - height;
-                    right = mTargetRect.centerX() + width / 2;
-                    bottom = mTargetRect.top;
-                    break;
-                case Configuration.ANCHOR_RIGHT:
-                    left = mTargetRect.right;
-                    top = mTargetRect.centerY() - height / 2;
-                    right = mTargetRect.right + width;
-                    bottom = mTargetRect.centerY() + height / 2;
-                    break;
-                default:
-                case Configuration.ANCHOR_BOTTOM:
-                    left = mTargetRect.centerX() - width / 2;
-                    top = mTargetRect.bottom;
-                    right = mTargetRect.centerX() + width / 2;
-                    bottom = mTargetRect.bottom + height;
-                    break;
-
+            if (!mIsTargetDecorView) {
+                switch (mGuideConfig.mGuideAnchorType) {
+                    case GuideConfig.ANCHOR_CENTER:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    case GuideConfig.ANCHOR_LEFT:
+                        left = mTargetRect.left - width;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    case GuideConfig.ANCHOR_TOP:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.top - height;
+                        break;
+                    case GuideConfig.ANCHOR_RIGHT:
+                        left = mTargetRect.right;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    default:
+                    case GuideConfig.ANCHOR_BOTTOM:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.bottom;
+                }
+            } else {
+                switch (mGuideConfig.mGuideAnchorType) {
+                    case GuideConfig.ANCHOR_CENTER:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    case GuideConfig.ANCHOR_LEFT:
+                        left = mTargetRect.left;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    case GuideConfig.ANCHOR_TOP:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.top;
+                        break;
+                    case GuideConfig.ANCHOR_RIGHT:
+                        left = mTargetRect.right - width;
+                        top = mTargetRect.centerY() - height / 2;
+                        break;
+                    default:
+                    case GuideConfig.ANCHOR_BOTTOM:
+                        left = mTargetRect.centerX() - width / 2;
+                        top = mTargetRect.bottom - height;
+                }
             }
+            right = left + width;
+            bottom = top + height;
             child.layout(
-                    left + mGuideOffsetX, top + mGuideOffsetY,
-                    right + mGuideOffsetX, bottom + mGuideOffsetY);
+                    left + mGuideConfig.mGuideOffsetX,
+                    top + mGuideConfig.mGuideOffsetY,
+                    right + mGuideConfig.mGuideOffsetX,
+                    bottom + mGuideConfig.mGuideOffsetY);
         }
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-        mTargetShowRectF.set(mTargetRect);
+    protected void dispatchDraw(Canvas canvas) {
         mEraserBitmap.eraseColor(Color.TRANSPARENT);
-        mEraserCanvas.drawColor(mShadowColor);
-        switch (mTargetShape) {
-            case Configuration.SHAPE_OVAL:
-                mEraserCanvas.drawOval(mTargetShowRectF, mEraser);
-                break;
-            case Configuration.SHAPE_RECTANGLE:
-            default:
-                mEraserCanvas.drawRoundRect(mTargetShowRectF, mTargetCorner, mTargetCorner, mEraser);
-                break;
+        mEraserCanvas.drawColor(mGuideConfig.mShadowColor);
+        if (!mIsTargetDecorView) {
+            mTargetShowRectF.set(mTargetRect);
+            switch (mGuideConfig.mTargetShape) {
+                case GuideConfig.SHAPE_OVAL:
+                    mEraserCanvas.drawOval(mTargetShowRectF, mEraser);
+                    break;
+                case GuideConfig.SHAPE_RECTANGLE:
+                default:
+                    mEraserCanvas.drawRoundRect(mTargetShowRectF,
+                            mGuideConfig.mTargetCorner, mGuideConfig.mTargetCorner, mEraser);
+                    break;
+            }
         }
         canvas.drawBitmap(mEraserBitmap, 0, 0, null);
+        super.dispatchDraw(canvas);
     }
 
     /**
      * 展示引导视图
      */
-    public void show() {
+    void show() {
         Activity activity = (Activity) getContext();
         if (activity == null || activity.isFinishing()) {
             return;
         }
-        if (mTargetView.getWidth() == 0 && mTargetView.getHeight() == 0) {
-            getViewTreeObserver().addOnGlobalLayoutListener(this);
+        if (mGuideConfig.mTargetViewList == null) {
+            mGuideConfig.mTargetViewList = new ArrayList<>();
+        }
+        if (mGuideConfig.mTargetViewList.size() == 0) {
+            mGuideConfig.mTargetViewList.add(activity.getWindow().getDecorView());
+            mIsTargetDecorView = true;
+        }
+        View target = mGuideConfig.mTargetViewList.get(0);
+        if (target.getWidth() == 0 && target.getHeight() == 0) {
+            getViewTreeObserver().addOnGlobalLayoutListener(mOnGlobalLayoutListener);
         } else {
             fixLayout();
         }
         ViewGroup parent = (ViewGroup) activity.getWindow().getDecorView();
         parent.addView(GuideView.this);
-        if (mAnimatorShow > 0) {
-            isAnimatorDoing = true;
-            Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorShow);
+        if (mGuideConfig.mAnimatorShow > 0) {
+            mIsAnimatorDoing = true;
+            Animator animator = AnimatorInflater.loadAnimator(getContext(), mGuideConfig.mAnimatorShow);
             animator.setTarget(GuideView.this);
             animator.start();
             animator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     super.onAnimationEnd(animation);
-                    isAnimatorDoing = false;
+                    mIsAnimatorDoing = false;
                 }
             });
         }
         setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isAnimatorDoing) {
-                    return;
-                }
-                if (mAnimatorDismiss > 0) {
-                    isAnimatorDoing = true;
-                    Animator animator = AnimatorInflater.loadAnimator(getContext(), mAnimatorDismiss);
-                    animator.setTarget(GuideView.this);
-                    animator.start();
-                    animator.addListener(new AnimatorListenerAdapter() {
-                                             @Override
-                                             public void onAnimationEnd(Animator animation) {
-                                                 super.onAnimationEnd(animation);
-                                                 isAnimatorDoing = false;
-                                                 dismiss();
-                                             }
-                                         }
-                    );
-                } else {
-                    dismiss();
-                }
+                dismiss();
             }
         });
     }
 
     /**
-     * 引导层消失
+     * 对外暴露的引导层消失操作
+     * 如果手动调用请确保当前蒙层是最前面的蒙层
      */
     public void dismiss() {
+        if (mIsAnimatorDoing) {
+            return;
+        }
+        if (mGuideConfig.mAnimatorDismiss > 0) {
+            mIsAnimatorDoing = true;
+            Animator animator = AnimatorInflater.loadAnimator(getContext(), mGuideConfig.mAnimatorDismiss);
+            animator.setTarget(GuideView.this);
+            animator.start();
+            animator.addListener(new AnimatorListenerAdapter() {
+                                     @Override
+                                     public void onAnimationEnd(Animator animation) {
+                                         super.onAnimationEnd(animation);
+                                         mIsAnimatorDoing = false;
+                                         remove();
+                                     }
+                                 }
+            );
+        } else {
+            remove();
+        }
+    }
+
+    /**
+     * 引导层移除操作
+     */
+    private void remove() {
         ViewGroup parent = (ViewGroup) getParent();
         if (parent != null) {
             parent.removeView(GuideView.this);
         }
-        if (mOnDismissListeners != null) {
-            for (OnDismissListener onDismissListener : mOnDismissListeners) {
+        if (mSystemDismissListener != null) {
+            mSystemDismissListener.onDismiss();
+        }
+        if (mGuideConfig.mOnDismissListeners != null) {
+            for (OnDismissListener onDismissListener : mGuideConfig.mOnDismissListeners) {
                 if (onDismissListener != null) {
                     onDismissListener.onDismiss();
                 }
@@ -339,39 +308,26 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         }
     }
 
-    @Override
-    public void onGlobalLayout() {
-        fixLayout();
-        getViewTreeObserver().removeOnGlobalLayoutListener(this);
-    }
-
     public void fixLayout() {
-        //将该布局提到最前面
+        // 将该布局提到最前面
         bringToFront();
-        int[] location = new int[2];
-        mTargetView.getLocationInWindow(location);
-        int targetWidth = mTargetView.getWidth();
-        int targetHeight = mTargetView.getHeight();
-        int left = location[0] - mTargetPaddingLeft;
-        int top = location[1] - mTargetPaddingTop;
-        int right = location[0] + targetWidth + mTargetPaddingRight;
-        int bottom = location[1] + targetHeight + mTargetPaddingBottom;
-        if (mTargetShape == Configuration.SHAPE_OVAL) {
-            int centerX = (right + left) / 2;
-            int centerY = (top + bottom) / 2;
+        Rect border = calculateTargetBorder();
+        if (mGuideConfig.mTargetShape == GuideConfig.SHAPE_OVAL) {
+            int centerX = (border.right + border.left) / 2;
+            int centerY = (border.top + border.bottom) / 2;
             int radioX, radioY;
-            if ((right - left) > (bottom - top)) {
-                radioX = (right - left) / 2;
-                radioY = (int) (radioX * mTargetRadio);
+            if ((border.right - border.left) > (border.bottom - border.top)) {
+                radioX = (border.right - border.left) / 2;
+                radioY = (int) (radioX * mGuideConfig.mTargetRadio);
             } else {
-                radioY = (bottom - top) / 2;
-                radioX = (int) (radioY * mTargetRadio);
+                radioY = (border.bottom - border.top) / 2;
+                radioX = (int) (radioY * mGuideConfig.mTargetRadio);
             }
             mTargetRect.set(
                     centerX - radioX, centerY - radioY,
                     centerX + radioX, centerY + radioY);
         } else {
-            mTargetRect.set(left, top, right, bottom);
+            mTargetRect.set(border);
         }
 
         Log.i("target", "left: " + mTargetRect.left +
@@ -389,7 +345,8 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
         int oBottom = mTargetRect.bottom - deviceRect.bottom;
         // 正常应该是一正一负，考虑到目标是大于窗口的请况可能会-负-零或者一零一零
         // 不正常的情况则是两正或者两负
-        if (oLeft * oRight <= 0 && oTop * oBottom <= 0 || mOnOutOfRangeListener == null) {
+        if (oLeft * oRight <= 0 && oTop * oBottom <= 0
+                || mGuideConfig.mOnOutOfRangeListener == null) {
             requestLayout();
         } else {
             int offX, offY;
@@ -401,21 +358,44 @@ public class GuideView extends ViewGroup implements ViewTreeObserver.OnGlobalLay
             if (oTop < 0) {
                 offY = -offY;
             }
-            mOnOutOfRangeListener.onOutOfRange(this, offX, offY);
+            mGuideConfig.mOnOutOfRangeListener.onOutOfRange(offX, offY);
+            fixLayout();
         }
+    }
+
+    /**
+     * 计算目标view的范围
+     */
+    private Rect calculateTargetBorder() {
+        int[] location = new int[2];
+        int left = Integer.MAX_VALUE, top = Integer.MAX_VALUE,
+                right = Integer.MIN_VALUE, bottom = Integer.MIN_VALUE;
+        for (View view : mGuideConfig.mTargetViewList) {
+            view.getLocationInWindow(location);
+            int targetWidth = view.getWidth();
+            int targetHeight = view.getHeight();
+            left = Math.min(left, location[0] - mGuideConfig.getTargetPaddingLeft());
+            top = Math.min(top, location[1] - mGuideConfig.getTargetPaddingTop());
+            right = Math.max(right, location[0] + targetWidth + mGuideConfig.getTargetPaddingRight());
+            bottom = Math.max(bottom, location[1] + targetHeight + mGuideConfig.getTargetPaddingBottom());
+        }
+        return new Rect(left, top, right, bottom);
     }
 
     public interface OnDismissListener {
         /**
          * 蒙层消失时的回调
          */
-        public void onDismiss();
+        void onDismiss();
     }
 
     public interface OnOutOfRangeListener {
         /**
          * 目标超出可视界面
+         *
+         * @param offsetX 横向偏移距离
+         * @param offsetY 竖向偏移距离
          */
-        public void onOutOfRange(GuideView guideView, int offsetX, int offsetY);
+        void onOutOfRange(int offsetX, int offsetY);
     }
 }

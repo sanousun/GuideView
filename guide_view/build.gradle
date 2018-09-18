@@ -1,13 +1,14 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
-    compileSdkVersion 26
-
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 26
-        versionCode 1
-        versionName "1.0"
+        targetSdkVersion 27
+        versionCode 101
+        versionName "1.1"
     }
 
     buildTypes {
@@ -16,10 +17,18 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
 
+publish {
+    userOrg = 'shenhui1876'
+    groupId = 'com.sanousun'
+    artifactId = 'guide-view'
+    publishVersion = '1.0.0'
+    desc = '引导控件 guideView'
+    website = 'https://github.com/sanousun/GuideView'
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:26.1.0'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
 }

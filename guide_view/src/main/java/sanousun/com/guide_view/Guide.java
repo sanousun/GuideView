@@ -1,17 +1,15 @@
 package sanousun.com.guide_view;
 
 import android.app.Activity;
+import android.support.annotation.NonNull;
 
 import java.lang.ref.WeakReference;
 import java.util.LinkedList;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/20
- * time: 上午10:14
- * desc: 入口
+ * @author dashu
+ * 2017/12/20
+ * 入口
  */
 
 public class Guide {
@@ -25,7 +23,7 @@ public class Guide {
      *
      * @param activity 宿主activity
      */
-    public Guide(Activity activity) {
+    public Guide(@NonNull Activity activity) {
         mActivity = new WeakReference<>(activity);
     }
 
@@ -33,13 +31,23 @@ public class Guide {
         return new GuideBuilder(this);
     }
 
-    public Activity getActivity() {
+    /**
+     * 返回宿主的activity
+     *
+     * @return 宿主页面
+     */
+    Activity getActivity() {
         return mActivity.get();
     }
 
     private boolean isShowGuide = false;
 
-    public void addGuide(GuideView guideView) {
+    /**
+     * 添加目标引导页到队列中，可以实现顺序展示
+     *
+     * @param guideView 生成的引导页
+     */
+    void addGuide(@NonNull GuideView guideView) {
         if (mGuideViews == null) {
             mGuideViews = new LinkedList<>();
         }
@@ -47,6 +55,10 @@ public class Guide {
         showGuide();
     }
 
+    /**
+     * 展示引导页
+     * 同时给引导页添加消失回调，使按链表中的顺序展示
+     */
     private void showGuide() {
         if (mGuideViews == null || mGuideViews.size() == 0) {
             return;
@@ -55,7 +67,7 @@ public class Guide {
             return;
         }
         GuideView guideView = mGuideViews.getFirst();
-        guideView.addOnDismissListener(new GuideView.OnDismissListener() {
+        guideView.setSystemDismissListener(new GuideView.OnDismissListener() {
             @Override
             public void onDismiss() {
                 mGuideViews.removeFirst();

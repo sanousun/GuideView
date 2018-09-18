@@ -3,18 +3,16 @@ package sanousun.com.guide_view;
 import android.content.Context;
 
 /**
- * Created with Android Studio.
- * <p>
- * author: dashu
- * date: 2017/12/22
- * time: 上午10:03
- * desc: 尺寸工具类
+ * @author dashu
+ * 2017/12/22
+ * 尺寸工具类
  */
 
 public class SizeUtils {
 
     /**
      * 将dp转为px值
+     *
      * @param context 上下文
      * @param dpValue dp值
      * @return px值
@@ -26,7 +24,10 @@ public class SizeUtils {
 
     /**
      * 获取状态栏高度
+     * @param context 上下文
+     * @return 状态栏高度
      */
+    @SuppressWarnings("unused")
     public static int getStatusBarHeight(Context context) {
         int result;
         int resourceId = context.getResources()
