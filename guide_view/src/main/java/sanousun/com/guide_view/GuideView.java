@@ -100,8 +100,6 @@ public class GuideView extends ViewGroup {
 
         mTargetRect = new Rect();
         mTargetShowRectF = new RectF();
-        // 设置了颜色才会调用onDraw()，否则不会触发
-        setBackgroundColor(Color.TRANSPARENT);
     }
 
     @Override
@@ -146,70 +144,50 @@ public class GuideView extends ViewGroup {
                     case GuideConfig.ANCHOR_CENTER:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     case GuideConfig.ANCHOR_LEFT:
                         left = mTargetRect.left - width;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.left;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     case GuideConfig.ANCHOR_TOP:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.top - height;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.top;
                         break;
                     case GuideConfig.ANCHOR_RIGHT:
                         left = mTargetRect.right;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.right + width;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     default:
                     case GuideConfig.ANCHOR_BOTTOM:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.bottom;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.bottom + height;
-                        break;
                 }
             } else {
                 switch (mGuideConfig.mGuideAnchorType) {
                     case GuideConfig.ANCHOR_CENTER:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     case GuideConfig.ANCHOR_LEFT:
                         left = mTargetRect.left;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.left + width;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     case GuideConfig.ANCHOR_TOP:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.top;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.top + height;
                         break;
                     case GuideConfig.ANCHOR_RIGHT:
                         left = mTargetRect.right - width;
                         top = mTargetRect.centerY() - height / 2;
-                        right = mTargetRect.right;
-                        bottom = mTargetRect.centerY() + height / 2;
                         break;
                     default:
                     case GuideConfig.ANCHOR_BOTTOM:
                         left = mTargetRect.centerX() - width / 2;
                         top = mTargetRect.bottom - height;
-                        right = mTargetRect.centerX() + width / 2;
-                        bottom = mTargetRect.bottom;
-                        break;
                 }
             }
+            right = left + width;
+            bottom = top + height;
             child.layout(
                     left + mGuideConfig.mGuideOffsetX,
                     top + mGuideConfig.mGuideOffsetY,
@@ -219,8 +197,7 @@ public class GuideView extends ViewGroup {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
+    protected void dispatchDraw(Canvas canvas) {
         mEraserBitmap.eraseColor(Color.TRANSPARENT);
         mEraserCanvas.drawColor(mGuideConfig.mShadowColor);
         if (!mIsTargetDecorView) {
@@ -237,6 +214,7 @@ public class GuideView extends ViewGroup {
             }
         }
         canvas.drawBitmap(mEraserBitmap, 0, 0, null);
+        super.dispatchDraw(canvas);
     }
 
     /**
