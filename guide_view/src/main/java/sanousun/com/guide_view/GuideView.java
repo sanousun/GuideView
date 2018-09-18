@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * @author dashu
- * @date 2017/12/17
+ * 2017/12/17
  * 引导视图
  */
 
@@ -392,6 +392,9 @@ public class GuideView extends ViewGroup {
     public interface OnOutOfRangeListener {
         /**
          * 目标超出可视界面
+         *
+         * @param offsetX 横向偏移距离
+         * @param offsetY 竖向偏移距离
          */
         void onOutOfRange(int offsetX, int offsetY);
     }

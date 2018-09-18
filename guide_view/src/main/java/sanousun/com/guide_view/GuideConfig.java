@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * @author dashu
- * @date 2017/12/17
+ * 2017/12/17
  * 引导视图的配置项
  */
 

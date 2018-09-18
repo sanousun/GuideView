@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 27
@@ -16,7 +17,15 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
 
+publish {
+    userOrg = 'shenhui1876'
+    groupId = 'com.sanousun'
+    artifactId = 'guide-view'
+    publishVersion = '1.0.0'
+    desc = '引导控件 guideView'
+    website = 'https://github.com/sanousun/GuideView'
 }
 
 dependencies {

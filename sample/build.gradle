@@ -5,7 +5,7 @@ android {
     buildToolsVersion "27.0.3"
     defaultConfig {
         applicationId "sanousun.com.guideview"
-        minSdkVersion 16
+        minSdkVersion 23
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -18,8 +18,13 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://dl.bintray.com/shenhui1876/maven' }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:27.1.1'
-    implementation project(':guide_view')
+    implementation 'com.sanousun:guide-view:1.0.0'
+//    implementation project(':guide_view')
 }

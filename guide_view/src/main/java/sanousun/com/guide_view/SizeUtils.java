@@ -4,7 +4,7 @@ import android.content.Context;
 
 /**
  * @author dashu
- * @date 2017/12/22
+ * 2017/12/22
  * 尺寸工具类
  */
 
@@ -24,6 +24,8 @@ public class SizeUtils {
 
     /**
      * 获取状态栏高度
+     * @param context 上下文
+     * @return 状态栏高度
      */
     @SuppressWarnings("unused")
     public static int getStatusBarHeight(Context context) {
