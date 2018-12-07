@@ -1,14 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion rootProject.android.compileSdkVersion
     defaultConfig {
-        applicationId "sanousun.com.guideview"
-        minSdkVersion 23
-        targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        minSdkVersion rootProject.android.minSdkVersion
+        targetSdkVersion rootProject.android.targetSdkVersion
+        versionCode 101
+        versionName "1.1"
     }
     buildTypes {
         release {
@@ -18,13 +16,9 @@ android {
     }
 }
 
-repositories {
-    maven { url 'https://dl.bintray.com/shenhui1876/maven' }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation "com.android.support:appcompat-v7:$rootProject.android.supportVersion"
     implementation 'com.sanousun:guide-view:1.0.0'
 //    implementation project(':guide_view')
 }
